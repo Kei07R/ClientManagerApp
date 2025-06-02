@@ -8,7 +8,7 @@ const HomePage = () => {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section (Centered) */}
-      <main className="flex-grow flex items-center justify-center bg-base-200">
+      <main className="flex-grow flex items-center justify-center">
         <div className="text-center max-w-md">
           <h1 className="text-4xl font-bold">CLIENT MANAGER</h1>
           <p className="py-6">
