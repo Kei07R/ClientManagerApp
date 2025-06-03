@@ -7,6 +7,7 @@ const CustomFooter = () => {
       <footer className="footer bg-neutral text-neutral-content items-center p-4">
         <aside className="flex items-center gap-4">
           <Image
+            unoptimized
             className="rounded-xl"
             src="/client_manager.gif"
             alt="Client Manager Logo"
