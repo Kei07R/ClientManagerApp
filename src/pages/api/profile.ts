@@ -27,8 +27,8 @@ export default async function handler(
     let clientsCount = 0;
 
     if (userProfile.role === "ADMIN") {
-      const clients = await prisma.client.findMany();
-      clientsCount = clients.length;
+      const clients = await prisma.user.findMany();
+      clientsCount = clients.length - 1;
     } else if (userProfile.role === "MANAGER") {
       const clients = await prisma.client.findMany({
         where: { managerId: userId },
