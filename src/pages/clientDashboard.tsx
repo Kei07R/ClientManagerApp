@@ -8,6 +8,7 @@ interface Client {
   name: string;
   email: string;
   phone: string;
+  password: string;
   managerId: string;
 }
 
@@ -90,6 +91,71 @@ const ClientDashboard = () => {
     }
   };
 
+  const handleDelete = async (id: string) => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    if (!confirm("Are you sure you want to delete this client?")) return;
+
+    try {
+      const res = await fetch(`/api/client/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        setClients((prev) => prev.filter((c) => c.id !== id));
+      } else {
+        alert(data.message || "Failed to delete client");
+      }
+    } catch (err) {
+      alert("Error deleting client");
+    }
+  };
+
+  const [updateClient, setUpdateClient] = useState<Client | null>(null);
+
+  const openUpdateModal = (client: Client) => {
+    setUpdateClient(client);
+    (
+      document.getElementById("update-client-modal") as HTMLInputElement
+    ).checked = true;
+  };
+
+  const handleUpdate = async () => {
+    if (!updateClient) return;
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    const { name, email, phone, password } = updateClient;
+
+    try {
+      const res = await fetch(`/api/client/${updateClient.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ name, email, phone, password }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        setClients((prev) =>
+          prev.map((c) => (c.id === updateClient.id ? data.client : c))
+        );
+        setUpdateClient(null);
+      } else {
+        alert(data.message || "Failed to update client");
+      }
+    } catch (err) {
+      alert("Error updating client");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-base-100">
       <CustomNavbar />
@@ -97,7 +163,10 @@ const ClientDashboard = () => {
       <div className="p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-semibold">Client Dashboard</h1>
-          <button className="btn btn-primary btn-sm" onClick={() => setShowModal(true)}>
+          <button
+            className="btn btn-primary btn-sm"
+            onClick={() => setShowModal(true)}
+          >
             Add Client
           </button>
         </div>
@@ -133,6 +202,20 @@ const ClientDashboard = () => {
                     <td>{client.email}</td>
                     <td>{client.phone}</td>
                     <td>{client.managerId}</td>
+                    <td className="flex gap-2">
+                      <button
+                        className="btn btn-sm btn-outline btn-error"
+                        onClick={() => handleDelete(client.id)}
+                      >
+                        Delete
+                      </button>
+                      <button
+                        className="btn btn-sm btn-outline btn-info"
+                        onClick={() => openUpdateModal(client)}
+                      >
+                        Update
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -152,28 +235,36 @@ const ClientDashboard = () => {
                 placeholder="Name"
                 className="input input-bordered w-full"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
               />
               <input
                 type="email"
                 placeholder="Email"
                 className="input input-bordered w-full"
                 value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
               />
               <input
                 type="tel"
                 placeholder="Phone"
                 className="input input-bordered w-full"
                 value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, phone: e.target.value })
+                }
               />
               <input
                 type="password"
                 placeholder="Password"
                 className="input input-bordered w-full"
                 value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, password: e.target.value })
+                }
               />
 
               {formError && <p className="text-red-500 text-sm">{formError}</p>}
@@ -196,6 +287,70 @@ const ClientDashboard = () => {
           </div>
         </div>
       )}
+      {/* Update Client Modal */}
+      <input
+        type="checkbox"
+        id="update-client-modal"
+        className="modal-toggle"
+      />
+      <div className="modal">
+        <div className="modal-box">
+          <h2 className="text-xl font-bold mb-4">Update Client</h2>
+
+          {updateClient && (
+            <div className="space-y-3">
+              <input
+                type="text"
+                className="input input-bordered w-full"
+                placeholder="Name"
+                value={updateClient.name}
+                onChange={(e) =>
+                  setUpdateClient({ ...updateClient, name: e.target.value })
+                }
+              />
+              <input
+                type="email"
+                className="input input-bordered w-full"
+                placeholder="Email"
+                value={updateClient.email}
+                onChange={(e) =>
+                  setUpdateClient({ ...updateClient, email: e.target.value })
+                }
+              />
+              <input
+                type="tel"
+                className="input input-bordered w-full"
+                placeholder="Phone"
+                value={updateClient.phone}
+                onChange={(e) =>
+                  setUpdateClient({ ...updateClient, phone: e.target.value })
+                }
+              />
+              <input
+                type="password"
+                className="input input-bordered w-full"
+                placeholder="New Password"
+                onChange={(e) =>
+                  setUpdateClient({ ...updateClient, password: e.target.value })
+                }
+              />
+            </div>
+          )}
+
+          <div className="modal-action">
+            <label htmlFor="update-client-modal" className="btn btn-ghost">
+              Cancel
+            </label>
+            <label
+              htmlFor="update-client-modal"
+              className="btn btn-primary"
+              onClick={handleUpdate}
+            >
+              Save Changes
+            </label>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
