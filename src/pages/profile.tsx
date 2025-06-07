@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { UserCircle } from "lucide-react";
 import CustomFooter from "@/components/CustomFooter";
 import CustomNavbar from "@/components/CustomNavbar";
+import { jwtDecode } from "jwt-decode";
 
 interface ProfileData {
   id: string;
@@ -16,6 +17,11 @@ const Profile = () => {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  interface TokenPayload {
+    id: string;
+    role: string;
+  }
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -52,7 +58,26 @@ const Profile = () => {
   }, [router]);
 
   const handleViewClients = () => {
-    router.push("/clientDashboard");
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+
+    try {
+      const decoded = jwtDecode<TokenPayload>(token);
+      if (decoded.role === "ADMIN") {
+        router.push("/adminDashboard");
+      } else if (decoded.role === "MANAGER") {
+        router.push("/clientDashboard");
+      } else {
+        router.push("/login");
+      }
+    } catch (err) {
+      console.error("Invalid token:", err);
+      router.push("/login");
+    }
   };
 
   if (loading)
