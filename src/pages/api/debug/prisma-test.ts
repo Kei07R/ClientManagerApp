@@ -1,6 +1,6 @@
-// pages/api/debug/prisma-test.ts
-import { prisma } from "../../../../lib/prisma";
+// /src/pages/api/debug/prisma-test.ts
 import { NextApiRequest, NextApiResponse } from "next";
+import { prisma } from "../../../../lib/prisma";
 
 export default async function handler(
   req: NextApiRequest,
@@ -10,10 +10,14 @@ export default async function handler(
     const users = await prisma.user.findMany({ take: 1 });
     res.status(200).json({ message: "Success", users });
   } catch (error: any) {
-    console.error("Prisma connection error:", error);
+    console.error("🔥 Prisma error:", error); // Log in Vercel's build/logs tab
+
     res.status(500).json({
-      message: "Failed to connect",
+      message: "Internal Server Error",
+      name: error?.name || null,
+      code: error?.code || null,
       error: error?.message || String(error),
+      stack: error?.stack || null,
     });
   }
 }
