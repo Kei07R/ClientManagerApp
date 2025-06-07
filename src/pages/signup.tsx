@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import CustomFooter from "@/components/CustomFooter";
 import { useRouter } from "next/router";
+import Link from "next/link";
 
 const Signup = () => {
   const [email, setEmail] = useState("");
@@ -42,6 +43,7 @@ const Signup = () => {
         router.push("/login");
       }
     } catch (error) {
+      console.log(error);
       setError("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
@@ -102,12 +104,12 @@ const Signup = () => {
 
         <p className="m-4 text-sm text-center">
           Already a User?{" "}
-          <a
+          <Link
             href="/login"
             className="text-primary underline hover:text-primary-focus"
           >
             Click here
-          </a>{" "}
+          </Link>{" "}
           to Login
         </p>
       </div>

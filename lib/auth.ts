@@ -25,8 +25,8 @@ export async function verifyToken(
 
     return decoded;
   } catch (error) {
+    console.log(error);
     res.status(401).json({ message: "Unauthorized: Invalid or expired token" });
-
     return null;
   }
 }

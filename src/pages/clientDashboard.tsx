@@ -111,8 +111,9 @@ const ClientDashboard = () => {
       } else {
         alert(data.message || "Failed to delete client");
       }
-    } catch (err) {
+    } catch (error) {
       alert("Error deleting client");
+      console.log(error);
     }
   };
 
